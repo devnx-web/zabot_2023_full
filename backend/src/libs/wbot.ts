@@ -27,7 +27,9 @@ const syncUnreadMessages = async (wbot: Session) => {
         await handleMessage(msg, wbot);
       }
 
-      await chat.sendSeen();
+      if (process.env.LE_CONVERSA_CELULAR === "true") {
+        await chat.sendSeen();
+      }
     }
   }
 };

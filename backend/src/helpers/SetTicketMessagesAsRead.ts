@@ -16,16 +16,17 @@ const SetTicketMessagesAsRead = async (ticket: Ticket): Promise<void> => {
   );
 
   await ticket.update({ unreadMessages: 0 });
-
-  try {
-    const wbot = await GetTicketWbot(ticket);
-    await wbot.sendSeen(
-      `${ticket.contact.number}@${ticket.isGroup ? "g" : "c"}.us`
-    );
-  } catch (err) {
-    logger.warn(
-      `Could not mark messages as read. Maybe whatsapp session disconnected? Err: ${err}`
-    );
+  if (process.env.CELL_TALK === "true") {
+    try {
+      const wbot = await GetTicketWbot(ticket);
+      await wbot.sendSeen(
+        `${ticket.contact.number}@${ticket.isGroup ? "g" : "c"}.us`
+      );
+    } catch (err) {
+      logger.warn(
+        `Could not mark messages as read. Maybe whatsapp session disconnected? Err: ${err}`
+      );
+    }
   }
 
   const io = getIO();

@@ -23,8 +23,9 @@ import ShowWhatsAppService from "../WhatsappService/ShowWhatsAppService";
 import { debounce } from "../../helpers/Debounce";
 import UpdateTicketService from "../TicketServices/UpdateTicketService";
 import CreateContactService from "../ContactServices/CreateContactService";
-import GetContactService from "../ContactServices/GetContactService";
 import formatBody from "../../helpers/Mustache";
+import UrlApiIntegracao from "../ApiServices/UrlApiIntegracao";
+import SendWhatsAppMessage from "./SendWhatsAppMessage";
 
 interface Session extends Client {
   id?: number;
@@ -111,15 +112,33 @@ const verifyMediaMessage = async (
 };
 
 const verifyMessage = async (
+  whatsId: any,
   msg: WbotMessage,
   ticket: Ticket,
   contact: Contact
 ) => {
-
-  if (msg.type === 'location')
-    msg = prepareLocation(msg);
-
+  if (msg.type === "location") msg = prepareLocation(msg);
   const quotedMsg = await verifyQuotedMessage(msg);
+  if (process.env.CHATBOT === "true") {
+    // Verifica se Chatbot esta ativo
+    // Verifica se o robo vai aguardar resposta
+    // para bloquear resposta externa
+    const { id } = msg;
+    if (!id.fromMe) {
+      const { status: statusTicket } = ticket;
+      if (statusTicket !== "open") {
+        const { data: resposta } = await UrlApiIntegracao(contact, ticket, msg);
+        await ticket.update({ iaInterage: resposta.resp });
+        if (resposta.resp) {
+          await SendWhatsAppMessage({
+            body: formatBody(resposta.msg, ticket.contact),
+            ticket
+          });
+        }
+      }
+    }
+  }
+  // if (!msgFila) {}
   const messageData = {
     id: msg.id.id,
     ticketId: ticket.id,
@@ -128,13 +147,23 @@ const verifyMessage = async (
     fromMe: msg.fromMe,
     mediaType: msg.type,
     read: msg.fromMe,
-    quotedMsgId: quotedMsg?.id
+    quotedMsgId: quotedMsg?.id,
+    userId: ticket.userId
   };
-
-  await ticket.update({ lastMessage: msg.type === "location" ? msg.location.description ? "Localization - " + msg.location.description.split('\\n')[0] : "Localization" : msg.body });
+  await ticket.update({
+    whatsappId: whatsId,
+    lastMessage:
+      // eslint-disable-next-line no-nested-ternary
+      msg.type === "location"
+        ? msg.location.description
+          ? `Localization - ${msg.location.description.split("\\n")[0]}`
+          : "Localization"
+        : msg.body
+  });
 
   await CreateMessageService({ messageData });
 };
+
 
 const prepareLocation = (msg: WbotMessage): WbotMessage => {
   let gmapsUrl = "https://maps.google.com/maps?q=" + msg.location.latitude + "%2C" + msg.location.longitude + "&z=17&hl=pt-BR";
@@ -177,7 +206,7 @@ const verifyQueue = async (
 
     const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, body);
 
-    await verifyMessage(sentMessage, ticket, contact);
+    await verifyMessage(wbot.id, sentMessage, ticket, contact);
   } else {
     let options = "";
 
@@ -193,7 +222,7 @@ const verifyQueue = async (
           `${contact.number}@c.us`,
           body
         );
-        verifyMessage(sentMessage, ticket, contact);
+        verifyMessage(wbot.id, sentMessage, ticket, contact);
       },
       3000,
       ticket.id
@@ -286,7 +315,7 @@ const handleMessage = async (
     if (msg.hasMedia) {
       await verifyMediaMessage(msg, ticket, contact);
     } else {
-      await verifyMessage(msg, ticket, contact);
+      await verifyMessage(wbot.id, msg, ticket, contact);
     }
 
     if (
