@@ -7,7 +7,7 @@ module.exports = {
       [
         {
           key: "userCreation",
-          value: "enabled",
+          value: "disabled",
           createdAt: new Date(),
           updatedAt: new Date()
         }
