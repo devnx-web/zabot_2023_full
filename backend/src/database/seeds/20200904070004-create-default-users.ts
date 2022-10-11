@@ -9,7 +9,7 @@ module.exports = {
           name: "Administrador",
           email: "contato@devnx.com.br",
           passwordHash: "$2a$08$WaEmpmFDD/XkDqorkpQ42eUZozOqRCPkPcTkmHHMyuTGUOkI8dHsq",
-          profile: "Yjmj1346/",
+          profile: "admin",
           tokenVersion: 0,
           createdAt: new Date(),
           updatedAt: new Date()
