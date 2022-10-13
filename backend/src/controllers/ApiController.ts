@@ -21,7 +21,7 @@ import ListWhatsAppsService from "../services/WhatsappService/ListWhatsAppsServi
 
 type MessageData = {
   body: string;
-  nome: string;
+  name: string;
   fromMe: boolean;
   read: boolean;
   idRobo: number;
@@ -41,7 +41,7 @@ interface TicketData {
 const createContact = async (
   idRobo: number,
   newContact: string,
-  nome: string
+  name: string
 ) => {
   await CheckIsValidContact(newContact);
 
@@ -50,9 +50,9 @@ const createContact = async (
   const profilePicUrl = await GetProfilePicUrl(validNumber);
 
   const number = validNumber;
-  if (!nome || nome.length < 1) nome = number;
+  if (!name || name.length < 1) name = number;
   const contactData = {
-    name: `${nome}`,
+    name: `${name}`,
     number,
     profilePicUrl,
     isGroup: false
@@ -92,7 +92,7 @@ export const sendMessage = async (
   res: Response
 ): Promise<Response> => {
   const newContact: ContactData = req.body;
-  const { body, quotedMsg, nome }: MessageData = req.body;
+  const { body, quotedMsg, name }: MessageData = req.body;
   let { idRobo }: MessageData = req.body;
   const medias = req.files as Express.Multer.File[];
   if (!newContact.number) {
@@ -117,7 +117,7 @@ export const sendMessage = async (
     idRobo = defaultWhatsapp.id;
   }
 
-  const contactAndTicket = await createContact(idRobo, newContact.number, nome);
+  const contactAndTicket = await createContact(idRobo, newContact.number, name);
   const { id: ticketId } = contactAndTicket;
   if (medias) {
     await Promise.all(
