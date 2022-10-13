@@ -57,7 +57,7 @@ services:
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE:-whaticket}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-strongpassword}
-      - TZ=${TZ:-America/Fortaleza}
+      - TZ=${TZ:-America/Sao_Paulo}
     ports:
       - ${MYSQL_PORT:-3306}:3306
     restart: always
