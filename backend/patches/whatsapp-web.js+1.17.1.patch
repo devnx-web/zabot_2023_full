@@ -1,0 +1,88 @@
+diff --git a/node_modules/whatsapp-web.js/src/util/Injected.js b/node_modules/whatsapp-web.js/src/util/Injected.js
+index 7eea752..15e7b16 100644
+--- a/node_modules/whatsapp-web.js/src/util/Injected.js
++++ b/node_modules/whatsapp-web.js/src/util/Injected.js
+@@ -161,7 +161,7 @@ exports.LoadUtils = () => {
+             delete options.linkPreview;
+ 
+             // Not supported yet by WhatsApp Web on MD
+-            if(!window.Store.MDBackend) {
++            if (!window.Store.MDBackend) {
+                 const link = window.Store.Validators.findLink(content);
+                 if (link) {
+                     const preview = await window.Store.Wap.queryLinkPreview(link.url);
+@@ -173,7 +173,7 @@ exports.LoadUtils = () => {
+         }
+ 
+         let buttonOptions = {};
+-        if(options.buttons){
++        if (options.buttons) {
+             let caption;
+             if (options.buttons.type === 'chat') {
+                 content = options.buttons.body;
+@@ -195,8 +195,8 @@ exports.LoadUtils = () => {
+         }
+ 
+         let listOptions = {};
+-        if(options.list){
+-            if(window.Store.Conn.platform === 'smba' || window.Store.Conn.platform === 'smbi'){
++        if (options.list) {
++            if (window.Store.Conn.platform === 'smba' || window.Store.Conn.platform === 'smbi') {
+                 throw '[LT01] Whatsapp business can\'t send this yet';
+             }
+             listOptions = {
+@@ -227,9 +227,9 @@ exports.LoadUtils = () => {
+         delete options.extraOptions;
+ 
+         const ephemeralSettings = {
+-            ephemeralDuration: chat.isEphemeralSettingOn() ? chat.getEphemeralSetting() : undefined,
+-            ephemeralSettingTimestamp: chat.getEphemeralSettingTimestamp() || undefined,
+-            disappearingModeInitiator: chat.getDisappearingModeInitiator() || undefined,
++            ephemeralDuration: chat?.hasOwnProperty('isEphemeralSettingOn') && chat?.isEphemeralSettingOn() ? chat?.getEphemeralSetting() : undefined,
++            ephemeralSettingTimestamp: chat?.hasOwnProperty('getEphemeralSettingTimestamp') ? chat?.getEphemeralSettingTimestamp() : undefined,
++            disappearingModeInitiator: chat?.hasOwnProperty('getDisappearingModeInitiator') ? chat?.getDisappearingModeInitiator() : undefined,
+         };
+ 
+         const message = {
+@@ -365,10 +365,10 @@ exports.LoadUtils = () => {
+ 
+         msg.isEphemeral = message.isEphemeral;
+         msg.isStatusV3 = message.isStatusV3;
+-        msg.links = (message.getLinks()).map(link => ({
++        msg.links = (message?.hasOwnProperty('getRawLinks') ? message?.getRawLinks() || [] : [])?.map(link => ({
+             link: link.href,
+             isSuspicious: Boolean(link.suspiciousCharacters && link.suspiciousCharacters.size)
+-        }));
++        })) || [];
+ 
+         if (msg.buttons) {
+             msg.buttons = msg.buttons.serialize();
+@@ -518,17 +518,17 @@ exports.LoadUtils = () => {
+             chatId = window.Store.WidFactory.createWid(chatId);
+         }
+         switch (state) {
+-        case 'typing':
+-            await window.Store.ChatState.sendChatStateComposing(chatId);
+-            break;
+-        case 'recording':
+-            await window.Store.ChatState.sendChatStateRecording(chatId);
+-            break;
+-        case 'stop':
+-            await window.Store.ChatState.sendChatStatePaused(chatId);
+-            break;
+-        default:
+-            throw 'Invalid chatstate';
++            case 'typing':
++                await window.Store.ChatState.sendChatStateComposing(chatId);
++                break;
++            case 'recording':
++                await window.Store.ChatState.sendChatStateRecording(chatId);
++                break;
++            case 'stop':
++                await window.Store.ChatState.sendChatStatePaused(chatId);
++                break;
++            default:
++                throw 'Invalid chatstate';
+         }
+ 
+         return true;
