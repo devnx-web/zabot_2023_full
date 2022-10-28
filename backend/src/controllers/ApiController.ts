@@ -24,7 +24,7 @@ type MessageData = {
   name: string;
   fromMe: boolean;
   read: boolean;
-  idRobo: number;
+  botId: number;
   quotedMsg?: Message;
 };
 
@@ -39,7 +39,7 @@ interface TicketData {
   userId: number;
 }
 const createContact = async (
-  idRobo: number,
+  botId: number,
   newContact: string,
   name: string
 ) => {
@@ -60,7 +60,7 @@ const createContact = async (
 
   const contact = await CreateOrUpdateContactService(contactData);
 
-  const createTicket = await FindOrCreateTicketService(contact, idRobo, 1);
+  const createTicket = await FindOrCreateTicketService(contact, botId, 1);
 
   const ticket = await ShowTicketService(createTicket.id);
 
@@ -93,7 +93,7 @@ export const sendMessage = async (
 ): Promise<Response> => {
   const newContact: ContactData = req.body;
   const { body, quotedMsg, name }: MessageData = req.body;
-  let { idRobo }: MessageData = req.body;
+  let { botId }: MessageData = req.body;
   const medias = req.files as Express.Multer.File[];
   if (!newContact.number) {
     throw new AppError("ERR_NUMERO_INVALIDO");
@@ -112,12 +112,12 @@ export const sendMessage = async (
     throw new AppError(err.message);
   }
 
-  if (!idRobo) {
+  if (!botId) {
     const defaultWhatsapp = await GetDefaultWhatsApp();
-    idRobo = defaultWhatsapp.id;
+    botId = defaultWhatsapp.id;
   }
 
-  const contactAndTicket = await createContact(idRobo, newContact.number, name);
+  const contactAndTicket = await createContact(botId, newContact.number, name);
   const { id: ticketId } = contactAndTicket;
   if (medias) {
     await Promise.all(

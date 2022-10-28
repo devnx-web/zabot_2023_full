@@ -8,6 +8,7 @@ import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppSer
 import ListWhatsAppsService from "../services/WhatsappService/ListWhatsAppsService";
 import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService";
 import UpdateWhatsAppService from "../services/WhatsappService/UpdateWhatsAppService";
+import AppError from "../errors/AppError";
 
 interface WhatsappData {
   name: string;
@@ -33,6 +34,13 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     farewellMessage,
     queueIds
   }: WhatsappData = req.body;
+
+  const whatsapps = await ListWhatsAppsService();
+  let maxConnections = 1;
+  if (process.env.MAX_CONNECTIONS) maxConnections = parseInt(process.env.MAX_CONNECTIONS);
+  if (whatsapps.length >= maxConnections) {
+    throw new AppError("WHATSAPP_MAX_CONNECTIONS");
+  }
 
   const { whatsapp, oldDefaultWhatsapp } = await CreateWhatsAppService({
     name,

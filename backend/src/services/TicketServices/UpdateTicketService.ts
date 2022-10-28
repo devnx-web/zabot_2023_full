@@ -33,7 +33,7 @@ const UpdateTicketService = async ({
   const ticket = await ShowTicketService(ticketId);
   await SetTicketMessagesAsRead(ticket);
 
-  if(whatsappId && ticket.whatsappId !== whatsappId) {
+  if (whatsappId && ticket.whatsappId !== whatsappId) {
     await CheckContactOpenTickets(ticket.contactId, whatsappId);
   }
 
@@ -44,6 +44,12 @@ const UpdateTicketService = async ({
     await CheckContactOpenTickets(ticket.contact.id, ticket.whatsappId);
   }
 
+  if (process.env.CLEAR_QUEUE === "true" && status === "closed") {
+    await ticket.update({ status, queueId: null, userId });
+  } else {
+    await ticket.update({ status, queueId, userId });
+  }
+
   await ticket.update({
     status,
     queueId,
@@ -51,7 +57,7 @@ const UpdateTicketService = async ({
   });
 
 
-  if(whatsappId) {
+  if (whatsappId) {
     await ticket.update({
       whatsappId
     });

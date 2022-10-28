@@ -12,13 +12,15 @@ interface Request {
   email?: string;
   profilePicUrl?: string;
   extraInfo?: ExtraInfo[];
+  whatsappId?: number;
 }
 
 const CreateContactService = async ({
   name,
   number,
   email = "",
-  extraInfo = []
+  extraInfo = [],
+  whatsappId,
 }: Request): Promise<Contact> => {
   const numberExists = await Contact.findOne({
     where: { number }
@@ -33,7 +35,8 @@ const CreateContactService = async ({
       name,
       number,
       email,
-      extraInfo
+      extraInfo,
+      whatsappId
     },
     {
       include: ["extraInfo"]

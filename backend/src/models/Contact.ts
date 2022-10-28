@@ -6,6 +6,8 @@ import {
   Model,
   PrimaryKey,
   AutoIncrement,
+  ForeignKey,
+  BelongsTo,
   AllowNull,
   Unique,
   Default,
@@ -13,6 +15,7 @@ import {
 } from "sequelize-typescript";
 import ContactCustomField from "./ContactCustomField";
 import Ticket from "./Ticket";
+import Whatsapp from "./Whatsapp";
 
 @Table
 class Contact extends Model<Contact> {
@@ -44,6 +47,13 @@ class Contact extends Model<Contact> {
   @CreatedAt
   createdAt: Date;
 
+  @ForeignKey(() => Whatsapp)
+  @Column
+  whatsappId: number;
+
+  @BelongsTo(() => Whatsapp)
+  whatsapp: Whatsapp;
+
   @UpdatedAt
   updatedAt: Date;
 
@@ -52,6 +62,7 @@ class Contact extends Model<Contact> {
 
   @HasMany(() => ContactCustomField)
   extraInfo: ContactCustomField[];
+
 }
 
 export default Contact;
