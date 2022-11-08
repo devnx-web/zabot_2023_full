@@ -1,0 +1,9 @@
+POST http://localhost:8080/api/message/send-button
+Authorization: Bearer 56e428d6-8757-421b-8a5c-3484a5eb667d
+content-type: application/json
+
+{
+    "number": "554196736050",
+    "name": "Fabio K",
+    "message": "Hello World"
+}

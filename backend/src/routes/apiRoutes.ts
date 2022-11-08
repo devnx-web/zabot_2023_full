@@ -36,6 +36,7 @@ ApiRoutes.get(
 ApiRoutes.get("/contact/search", isAuthApi, ApiController.buscaWhatsapps);
 ApiRoutes.post("/contact/validation", isAuthApi, ApiController.validaContato);
 ApiRoutes.post("/message/send", isAuthApi, upload.array("medias"), ApiController.sendMessage);
+ApiRoutes.post("/message/send-button", isAuthApi, upload.array("medias"), ApiController.sendButton);
 ApiRoutes.put("/ticket/update/:ticketId", isAuthApi, ApiController.atualizarTicket);
 
 export default ApiRoutes;

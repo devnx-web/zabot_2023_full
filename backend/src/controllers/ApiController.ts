@@ -18,6 +18,8 @@ import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService
 import formatBody from "../helpers/Mustache";
 import CloseTicketService from "../services/TicketServices/CloseTicketService";
 import ListWhatsAppsService from "../services/WhatsappService/ListWhatsAppsService";
+import GetTicketWbot from "../helpers/GetTicketWbot";
+import { Buttons, List } from "whatsapp-web.js";
 
 type MessageData = {
   body: string;
@@ -133,6 +135,67 @@ export const sendMessage = async (
     await SendWhatsAppMessage({ body, ticket: contactAndTicket, quotedMsg });
   }
   await CloseTicketService(ticketId);
+  return res.status(200).json(contactAndTicket);
+};
+
+
+export const sendButton = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const newContact: ContactData = req.body;
+  const { body, quotedMsg, name }: MessageData = req.body;
+  let { botId }: MessageData = req.body;
+  if (!newContact.number) {
+    throw new AppError("ERR_NUMERO_INVALIDO");
+  }
+  newContact.number = newContact.number.replace("-", "").replace(" ", "");
+
+  if (!botId) {
+    const defaultWhatsapp = await GetDefaultWhatsApp();
+    botId = defaultWhatsapp.id;
+  }
+
+  const contactAndTicket = await createContact(botId, newContact.number, name);
+
+  const wbot = await GetTicketWbot(contactAndTicket);
+
+  const TEST_JID = `${newContact.number}@c.us`; // modify
+  const buttons_reply = new Buttons('test', [{ body: 'Test', id: 'test-1' }], 'title', 'footer') // Reply button
+
+  const buttons_reply_url = new Buttons('test', [{ body: 'Test', id: 'test-1' }], 'title', 'footer') // Reply button with URL
+
+  const buttons_reply_call = new Buttons('test', [{ body: 'Test', id: 'test-1' }], 'title', 'footer') // Reply button with call button
+
+  const buttons_reply_call_url = new Buttons('test', [{ body: 'Test', id: 'test-1' }, { body: 'Test 3 URL', id: 'test-3' }], 'title', 'footer') // Reply button with call button & url button
+
+  const section = {
+    title: 'test',
+    rows: [
+      {
+        title: 'Test 1',
+      },
+      {
+        title: 'Test 2',
+        id: 'test-2'
+      },
+      {
+        title: 'Test 3',
+        description: 'This is a smaller text field, a description'
+      },
+      {
+        title: 'Test 4',
+        description: 'This is a smaller text field, a description',
+        id: 'test-4',
+      }
+    ],
+  };
+
+  // send to test_jid
+  for (const component of [buttons_reply, buttons_reply_url, buttons_reply_call, buttons_reply_call_url]) await wbot.sendMessage(TEST_JID, component);
+
+  const list = new List('test', 'click me', [section], 'title', 'footer')
+  await wbot.sendMessage(TEST_JID, list);
   return res.status(200).json(contactAndTicket);
 };
 
