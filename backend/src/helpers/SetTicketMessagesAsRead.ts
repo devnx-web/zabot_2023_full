@@ -16,7 +16,7 @@ const SetTicketMessagesAsRead = async (ticket: Ticket): Promise<void> => {
   );
 
   await ticket.update({ unreadMessages: 0 });
-  if (process.env.CELL_TALK === "true") {
+  if (!process.env?.CELL_TALK || process.env?.CELL_TALK === "true") {
     try {
       const wbot = await GetTicketWbot(ticket);
       await wbot.sendSeen(

@@ -1,0 +1,22 @@
+
+REACT_APP_HORAS_FECHAR_CHAMADOS_AUTO=
+# Caminho padrão do crome no windows
+CHROME_BIN="C:\Program Files\Google\Chrome\Application\chrome.exe"
+# Maximo de conexões permitidas no whatsapp
+MAX_WHATSAPPS=1
+# se vai ter integração com algum robo online - não esquecer de adicionar no bd
+ROBO_CHATBOT=true
+
+# se vai ter integração com algum robo online - não esquecer de adicionar no bd
+CHATBOT=true
+
+ROBO_CHATBOT_SITUACAO=open
+
+# se com a resposta da ia ele vai enviar a opção da fila ou não
+ENVIA_FILA_DEPOIS_ROBO=false
+
+# se no final da conversa ele volta pra nenhuma fila
+LIMPA_FILA=true
+
+# marca a conversa como lida caso não exista por padrão também marca
+CELL_TALK=true
